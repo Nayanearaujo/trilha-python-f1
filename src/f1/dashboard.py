@@ -58,6 +58,7 @@ def load_fastest(session_key: int, top_n: int) -> pd.DataFrame:
     return pd.DataFrame(
         {
             "Posicao": lap.position,
+            "Rotulo": f"P{lap.position} {lap.driver_name}",
             "Piloto": lap.driver_name,
             "Equipe": lap.team_name or "Desconhecida",
             "Volta": lap.lap_number,
@@ -66,6 +67,21 @@ def load_fastest(session_key: int, top_n: int) -> pd.DataFrame:
         }
         for lap in laps
     )
+
+
+def _axis_range(values: list[float], pad_ratio: float = 0.15) -> list[float]:
+    """Calcula um range de eixo com zoom no intervalo real dos dados.
+
+    Em vez de comecar em zero (o que esconde diferencas pequenas entre tempos
+    de volta), foca no intervalo [min, max] com uma folga proporcional.
+    """
+    clean = [v for v in values if v is not None]
+    if not clean:
+        return [0, 1]
+    low, high = min(clean), max(clean)
+    span = high - low or 1.0
+    pad = span * pad_ratio
+    return [low - pad, high + pad]
 
 
 @st.cache_data(show_spinner="Analisando pilotos...")
@@ -153,18 +169,24 @@ def _tab_voltas(fastest: pd.DataFrame) -> None:
     if fastest.empty:
         st.info("Sem voltas validas nessa sessao.")
         return
-    st.dataframe(fastest.drop(columns=["Segundos"]), hide_index=True, use_container_width=True)
+    table = fastest.drop(columns=["Segundos", "Rotulo"])
+    st.dataframe(table, hide_index=True, use_container_width=True)
     fig = px.bar(
         fastest,
-        x="Piloto",
+        x="Rotulo",
         y="Segundos",
         color="Equipe",
         text="Tempo",
-        title="Tempo das voltas mais rapidas (segundos)",
+        title="Tempo das voltas mais rapidas (menor = melhor)",
         template=PLOTLY_TEMPLATE,
     )
     fig.update_traces(textposition="outside")
-    fig.update_layout(yaxis_title="Duracao (s)", xaxis_title="")
+    fig.update_layout(
+        yaxis_title="Duracao (s)",
+        xaxis_title="",
+        yaxis_range=_axis_range(list(fastest["Segundos"])),
+        xaxis={"categoryorder": "array", "categoryarray": list(fastest["Rotulo"])},
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -182,10 +204,14 @@ def _tab_pilotos(drivers: pd.DataFrame) -> None:
             y="Piloto",
             color="Equipe",
             orientation="h",
-            title="Melhor volta por piloto (segundos)",
+            text="Melhor volta",
+            title="Melhor volta por piloto (menor = melhor)",
             template=PLOTLY_TEMPLATE,
         )
-        fig.update_layout(yaxis={"categoryorder": "total descending"})
+        fig.update_layout(
+            yaxis={"categoryorder": "total ascending"},
+            xaxis_range=_axis_range(list(plot_df["Melhor (s)"])),
+        )
         st.plotly_chart(fig, use_container_width=True)
 
 
@@ -202,8 +228,14 @@ def _tab_equipes(teams: pd.DataFrame) -> None:
             x="Equipe",
             y="Melhor (s)",
             color="Equipe",
-            title="Melhor volta por equipe (segundos)",
+            text="Melhor volta",
+            title="Melhor volta por equipe (menor = melhor)",
             template=PLOTLY_TEMPLATE,
+        )
+        fig.update_traces(textposition="outside")
+        fig.update_layout(
+            yaxis_range=_axis_range(list(plot_df["Melhor (s)"])),
+            xaxis={"categoryorder": "total ascending"},
         )
         st.plotly_chart(fig, use_container_width=True)
 
