@@ -7,6 +7,7 @@ Rode com:  poetry run streamlit run src/f1/dashboard.py
 from __future__ import annotations
 
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 
 from f1.domain.services import FastestLapsService
@@ -78,7 +79,18 @@ def main() -> None:
     )
 
     st.dataframe(df.drop(columns=["Segundos"]), hide_index=True, use_container_width=True)
-    st.bar_chart(df.set_index("Piloto")["Segundos"])
+
+    fig = px.bar(
+        df,
+        x="Piloto",
+        y="Segundos",
+        color="Equipe",
+        text="Tempo",
+        title="Tempo das voltas mais rapidas (segundos)",
+    )
+    fig.update_traces(textposition="outside")
+    fig.update_layout(yaxis_title="Duracao (s)", xaxis_title="")
+    st.plotly_chart(fig, use_container_width=True)
 
 
 if __name__ == "__main__":

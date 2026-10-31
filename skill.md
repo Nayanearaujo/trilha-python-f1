@@ -42,5 +42,14 @@ implementacao do projeto.
 
 ## 6. Seguranca
 
-- Segredos ficam em `.env` (nunca commitado).
+- Segredos ficam em `.env` (nunca commitado), carregado com **python-dotenv**.
 - `.gitignore` cobrindo `.env`, caches, coverage e artefatos.
+
+## 7. Bibliotecas principais
+
+- `requests` - consumo da API (GET).
+- `pydantic` - validacao/modelagem de dados.
+- `pandas` - normalizacao e transformacao.
+- `plotly` - graficos interativos no dashboard.
+- `streamlit` - interface web.
+- `python-dotenv` - isolamento de chaves via `.env`.
