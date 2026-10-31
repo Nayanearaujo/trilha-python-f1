@@ -15,15 +15,13 @@ class _FakeHttp:
     def get_json(self, url, params=None):
         self.urls.append(url)
         if url.endswith("/meetings"):
-            return [
-                {"meeting_key": 1, "meeting_name": "Brazil GP", "country_name": "Brazil"}
-            ]
+            return [{"meeting_key": 1, "country_name": "Brazil"}]
         if url.endswith("/sessions"):
-            return [{"session_key": 99, "session_name": "Race", "country_name": "Brazil"}]
+            return [{"session_key": 99, "session_name": "Race"}]
         if url.endswith("/laps"):
             return [{"driver_number": 1, "lap_number": 10, "lap_duration": 92.6}]
         if url.endswith("/drivers"):
-            return [{"driver_number": 1, "full_name": "Max Verstappen", "team_name": "RBR"}]
+            return [{"driver_number": 1, "full_name": "Max", "team_name": "RBR"}]
         return []
 
 
@@ -44,7 +42,7 @@ def test_client_sessions_com_filtros() -> None:
 def test_client_laps_e_drivers() -> None:
     client = _client()
     assert client.get_laps(99)[0].lap_duration == 92.6
-    assert client.get_drivers(99)[0].full_name == "Max Verstappen"
+    assert client.get_drivers(99)[0].full_name == "Max"
 
 
 def test_repository_delegates_to_client() -> None:
