@@ -1,76 +1,88 @@
-# Trilha Python F1 🏎️
+# Trilha Python F1 🏎️📊
 
-Dashboard de **Formula 1** que lista as **5 voltas mais rapidas por circuito**,
-consumindo dados em tempo real da [OpenF1 API](https://openf1.org/).
+Dashboard interativo para **explorar dados da Formula 1**, consumindo a
+[OpenF1 API](https://openf1.org/). Analise temporadas e circuitos com filtros
+encadeados (continente → pais) e visualizacoes dinamicas em Plotly.
 
-Este e o projeto final da trilha de boas praticas de Python. Ele foi construido
-seguindo o `skill.md` (padrao de engenharia) e o `plan.md` (plano de implementacao),
-exatamente o fluxo ensinado na trilha: Poetry, codigo modular, ruff, pytest,
-MkDocs e CI/CD no GitHub.
+Projeto final da trilha de boas praticas de Python, construido seguindo o
+`skill.md` (padrao de engenharia) e o `plan.md` (plano): Poetry, codigo modular
+em camadas, ruff, pytest, MkDocs e CI/CD no GitHub.
 
-## Stack
+## ✨ Funcionalidades
 
-- **Python 3.12** (ambiente via Poetry)
-- **Streamlit** - interface web
-- **Pydantic v2** - modelagem/validacao
-- **requests** - consumo da OpenF1 API
-- **pandas** - normalizacao/transformacao dos dados
-- **plotly** - graficos interativos
-- **python-dotenv** - isolamento de chaves via `.env`
-- **pytest + pytest-cov** - testes (cobertura minima 50%)
-- **ruff** - lint, format e organizacao de imports
-- **mkdocs-material** - documentacao
-- **GitHub Actions** - CI (lint, testes, build e deploy da doc)
+- 🏁 **Corridas** — GPs da temporada e distribuicao por continente (grafico de pizza).
+- ⏱️ **Voltas** — as 5 (ou N) voltas mais rapidas, com tempos formatados (`1:32.608`).
+- 👤 **Pilotos** — melhor volta e media por piloto (grafico de barras horizontal).
+- 👥 **Equipes** — comparativo de desempenho entre equipes.
+- 📊 **Resumo geral** — dispersao consistencia × velocidade por piloto.
+- 🔎 **Filtros encadeados** na barra lateral: temporada → continente → pais/circuito.
 
-## Estrutura
+## 🛠️ Stack
+
+| Camada | Ferramentas |
+|---|---|
+| Interface | Streamlit + Plotly |
+| Dados | requests, Pydantic v2, Pandas |
+| Config/segredos | python-dotenv (`.env`) |
+| Qualidade | ruff (lint/format), pytest + pytest-cov |
+| Docs | mkdocs-material (GitHub Pages) |
+| Infra | Poetry, GitHub Actions (CI/CD), pre-commit |
+
+## 🏗️ Arquitetura (em camadas)
+
+```
+dashboard  ->  services  ->  repositories  ->  openf1_client  ->  http_client
+   (UI)       (regra)        (fonte dados)      (endpoints)       (HTTP generico)
+```
 
 ```
 src/f1/
-  dashboard.py          # app Streamlit (orquestracao)
-  ingestion/            # cliente HTTP da OpenF1
-  domain/               # models (Pydantic) e services (regra de negocio)
-  processing/           # filtro/ordenacao das voltas (funcoes puras)
-  utils/                # config e logger
-tests/unit/             # testes unitarios (API mockada)
-scripts/                # scripts auxiliares (health-check da API)
-docs/                   # documentacao (mkdocs-material)
-.github/workflows/      # pipeline de CI
+  dashboard.py            # app Streamlit (abas + filtros + graficos)
+  ingestion/
+    http_client.py        # GET generico com retry/timeout
+    openf1_client.py      # endpoints da OpenF1
+  domain/
+    models.py             # entidades Pydantic
+    repositories.py       # contrato (Protocol) + OpenF1Repository
+    services.py           # regra de negocio
+  processing/
+    laps.py               # funcoes puras: filtrar/ordenar/agregar
+  utils/
+    config.py, logger.py
+tests/
+  unit/                   # testes com API mockada
+  integration/            # teste real opt-in (RUN_INTEGRATION=1)
+docs/                     # architecture, development, API, index
+.github/workflows/        # pipeline de CI/CD
 ```
 
-## Como rodar
+## 🚀 Como rodar
 
 ```bash
-# 1. instalar dependencias
 poetry install --with dev
-
-# 2. rodar o dashboard
-poetry run streamlit run src/f1/dashboard.py
-
-# 3. rodar os testes com cobertura
-poetry run pytest
-
-# 4. lint e format
-poetry run ruff check .
-poetry run ruff format .
-
-# 5. documentacao
-poetry run mkdocs serve        # local
-poetry run mkdocs gh-deploy    # publica no GitHub Pages
+poetry run streamlit run src/f1/dashboard.py   # dashboard
+poetry run pytest                              # testes + cobertura
+poetry run ruff check . && poetry run ruff format .
+poetry run mkdocs serve                        # doc local
+poetry run mkdocs gh-deploy                    # publica no GitHub Pages
 ```
 
-## Boas praticas aplicadas
+Atalhos (poe): `poetry run poe lint | format | test | docs | dashboard`.
 
-- Ambiente isolado e gerenciado com **Poetry** (nunca `pip` direto).
-- Projeto **modular**: cada camada com uma responsabilidade.
-- **ruff** garantindo PEP 8 e imports organizados.
-- **pytest** com cobertura e API mockada.
-- **.env** fora do versionamento (`.gitignore` + `.env.example`).
-- **CI** que barra codigo fora do padrao antes do merge.
-- **pre-commit** rodando lint/format antes de cada commit.
+## 🧪 Testes
 
-## Fluxo de Git usado
+- Unitarios rodam sempre (API mockada, repositorio fake).
+- Integracao real so com `RUN_INTEGRATION=1 poetry run pytest tests/integration`.
 
-Branch `dev` -> commits -> `git push` -> Pull Request -> merge na `main`.
+## 📄 Documentacao
+
+Publicada via GitHub Pages: **https://nayanearaujo.github.io/trilha-python-f1/**
+
+## 🙏 Creditos
+
+Projeto da trilha de Python (EmpregaDados / Anhanguera, instrutor Carlos Oliveira).
+Evolucao do dashboard inspirada em funcionalidades vistas em projetos de colegas
+da turma; todo o codigo deste repositorio e autoral.
 
 ## Licenca
 

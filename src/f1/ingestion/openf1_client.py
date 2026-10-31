@@ -1,16 +1,15 @@
-"""Cliente HTTP para a OpenF1 API.
+"""Cliente especifico da OpenF1 API.
 
-Responsavel apenas por falar com a API e devolver dados ja validados como
-modelos de dominio. Nenhuma regra de negocio aqui.
+Conhece os endpoints da OpenF1 e devolve dados ja validados como modelos de
+dominio. Delega o transporte HTTP ao HttpClient (separacao de responsabilidades).
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-import requests
-
-from f1.domain.models import Driver, Lap, Session
+from f1.domain.models import Driver, Lap, Meeting, Session
+from f1.ingestion.http_client import HttpClient
 from f1.utils.config import OPENF1_BASE_URL, REQUEST_TIMEOUT
 from f1.utils.logger import get_logger
 
@@ -18,24 +17,25 @@ logger = get_logger(__name__)
 
 
 class OpenF1Client:
-    """Cliente simples para os endpoints publicos da OpenF1."""
+    """Acesso aos endpoints publicos da OpenF1."""
 
     def __init__(
         self,
         base_url: str = OPENF1_BASE_URL,
-        timeout: int = REQUEST_TIMEOUT,
-        session: requests.Session | None = None,
+        http: HttpClient | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
-        self.timeout = timeout
-        self._session = session or requests.Session()
+        self._http = http or HttpClient(timeout=REQUEST_TIMEOUT)
 
     def _get(self, endpoint: str, params: dict[str, Any]) -> list[dict[str, Any]]:
         url = f"{self.base_url}/{endpoint}"
-        logger.info("GET %s params=%s", url, params)
-        response = self._session.get(url, params=params, timeout=self.timeout)
-        response.raise_for_status()
-        return response.json()
+        data = self._http.get_json(url, params=params)
+        return data if isinstance(data, list) else []
+
+    def get_meetings(self, year: int) -> list[Meeting]:
+        """Lista os GPs (meetings) de um ano."""
+        data = self._get("meetings", {"year": year})
+        return [Meeting(**item) for item in data]
 
     def get_sessions(
         self,
