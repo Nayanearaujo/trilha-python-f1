@@ -14,7 +14,9 @@ MkDocs e CI/CD no GitHub.
 - **Streamlit** - interface web
 - **Pydantic v2** - modelagem/validacao
 - **requests** - consumo da OpenF1 API
-- **pandas** - tabela e grafico
+- **pandas** - normalizacao/transformacao dos dados
+- **plotly** - graficos interativos
+- **python-dotenv** - isolamento de chaves via `.env`
 - **pytest + pytest-cov** - testes (cobertura minima 50%)
 - **ruff** - lint, format e organizacao de imports
 - **mkdocs-material** - documentacao
