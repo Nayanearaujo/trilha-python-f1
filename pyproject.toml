@@ -1,0 +1,64 @@
+[tool.poetry]
+name = "trilha-python-f1"
+version = "0.1.0"
+description = "Dashboard de Formula 1 que lista as 5 voltas mais rapidas por circuito, consumindo dados em tempo real da API OpenF1. Projeto final da trilha de boas praticas de Python."
+authors = ["Nayane Araujo <nayane@example.com>"]
+readme = "README.md"
+license = "MIT"
+packages = [{ include = "f1", from = "src" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.15"
+streamlit = "^1.40.0"
+pydantic = "^2.9.0"
+requests = "^2.32.0"
+pandas = "^2.2.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.0"
+pytest-cov = "^6.0.0"
+ruff = "^0.7.0"
+mkdocs-material = "^9.5.0"
+poethepoet = "^0.29.0"
+pre-commit = "^4.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# ---------------------------------------------------------------------------
+# Ferramentas de qualidade (ruff: lint + format + organizacao de imports)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "W"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["f1"]
+
+# ---------------------------------------------------------------------------
+# Pytest + cobertura (minimo 50% exigido pelo skill.md)
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+addopts = "-v --cov=src/f1 --cov-report=term-missing --cov-fail-under=50"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src/f1"]
+omit = ["*/dashboard.py"]
+
+# ---------------------------------------------------------------------------
+# Tasks (poethepoet) -> atalhos para os comandos do dia a dia
+# ---------------------------------------------------------------------------
+[tool.poe.tasks]
+lint = "ruff check ."
+format = "ruff format ."
+test = "pytest"
+docs = "mkdocs serve"
+docs-build = "mkdocs build"
+docs-deploy = "mkdocs gh-deploy --force"
+dashboard = "streamlit run src/f1/dashboard.py"

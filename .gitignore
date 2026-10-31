@@ -1,0 +1,37 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# ---- Virtualenv / Poetry ----
+.venv/
+venv/
+env/
+.python-version.local
+
+# ---- Testes / cobertura ----
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.ruff_cache/
+.mypy_cache/
+
+# ---- MkDocs ----
+site/
+
+# ---- Ambiente / segredos ----
+.env
+.env.*
+!.env.example
+
+# ---- Editores / SO ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
