@@ -51,7 +51,7 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 source = ["src/f1"]
-omit = ["*/dashboard.py"]
+omit = ["*/dashboard.py", "*/logger.py"]
 
 # ---------------------------------------------------------------------------
 # Tasks (poethepoet) -> atalhos para os comandos do dia a dia

@@ -23,6 +23,8 @@ theme:
 
 nav:
   - Inicio: index.md
+  - Arquitetura: architecture.md
+  - Desenvolvimento: development.md
   - API OpenF1: API.md
 
 markdown_extensions:
