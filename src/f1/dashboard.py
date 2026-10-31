@@ -208,11 +208,14 @@ def _tab_pilotos(drivers: pd.DataFrame) -> None:
             title="Melhor volta por piloto (menor = melhor)",
             template=PLOTLY_TEMPLATE,
         )
+        rng = _axis_range(list(plot_df["Melhor (s)"]))
         fig.update_layout(
-            yaxis={"categoryorder": "total ascending"},
-            xaxis_range=_axis_range(list(plot_df["Melhor (s)"])),
+            yaxis={"categoryorder": "total descending"},
+            # eixo invertido: menor tempo (mais rapido) fica com a barra mais longa
+            xaxis_range=[rng[1], rng[0]],
         )
         st.plotly_chart(fig, use_container_width=True)
+        st.caption("Eixo invertido: barra mais longa = volta mais rapida.")
 
 
 def _tab_equipes(teams: pd.DataFrame) -> None:
